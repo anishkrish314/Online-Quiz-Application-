@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>General Knowledge Quiz</title>
+    <!-- FontAweome CDN Link for Icons (Used for tick, cross, and crown)-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+    <style>
+        /* importing google fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
+
+
+        /* --- New Variable Definitions for Deep Indigo Theme --- */
+        :root {
+            --primary-color: #5D3FD3; /* Deep Indigo Blue */
+            --primary-light: #8B7EDF;
+            --primary-dark: #36219E;
+            --background-color: #F3F0FF; /* Very light Lavender background */
+            --text-color: #2D2D44;
+            --box-bg: #FFFFFF;
+            --shadow-light: 0 5px 15px rgba(0, 0, 0, 0.08); /* Modern, soft shadow */
+            --shadow-heavy: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+
+        body{
+            background: var(--background-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+
+        ::selection{
+            color: var(--box-bg);
+            background: var(--primary-light);
+        }
+
+
+        .start_btn,
+        .info_box,
+        .quiz_box,
+        .result_box{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: var(--shadow-heavy); /* Increased shadow for pop */
+            border-radius: 12px; /* Slightly more rounded corners */
+        }
+
+
+        /* --- Active State Transitions --- */
+        .info_box.activeInfo,
+        .quiz_box.activeQuiz,
+        .result_box.activeResult{
+            opacity: 1;
+            z-index: 5;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+
+        .start_btn button{
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--box-bg);
+            padding: 15px 35px;
+            outline: none;
+            border: none;
+            border-radius: 10px;
+            background: var(--primary-color);
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(93, 63, 211, 0.4);
+        }
+
+
+        .start_btn button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(93, 63, 211, 0.6);
+        }
+
+
+        /* --- Info Box --- */
+        .info_box{
+            width: 500px;
+            background: var(--box-bg);
+            border-radius: 12px;
+            transform: translate(-50%, -50%) scale(0.85);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+
+        .info_box .info-title{
+            height: 70px;
+            border-bottom: 1px solid #E0E0E0;
+            padding: 0 30px;
+            border-radius: 12px 12px 0 0;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+        }
+
+
+        .info_box .info-list{
+            padding: 20px 30px;
+        }
+
+
+        .info_box .info-list .info{
+            margin: 10px 0;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+
+        .info_box .info-list .info span{
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        .info_box .buttons{
+            height: 70px;
+            padding: 0 30px;
+            border-top: 1px solid #E0E0E0;
+            border-radius: 0 0 12px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+
+        .info_box .buttons button{
+            margin-left: 10px;
+            height: 45px;
+            width: 120px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+
+        .info_box .buttons .quit{
+            background: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-light);
+        }
+        .info_box .buttons .quit:hover {
+            color: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+
+
+        .info_box .buttons .restart{
+            background: var(--primary-color);
+            color: var(--box-bg);
+        }
+
+
+        .info_box .buttons .restart:hover{
+            background: var(--primary-dark);
+        }
+
+
+        /* --- Quiz Box --- */
+        .quiz_box{
+            width: 550px;
+            background: var(--box-bg);
+            border-radius: 12px;
+            transform: translate(-50%, -50%) scale(0.85);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+
+        .quiz_box header{
+            position: relative;
+            z-index: 2;
+            height: 70px;
+            padding: 0 30px;
+            background: var(--box-bg);
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+
+        .quiz_box header .title{
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+
+        .quiz_box header .timer{
+            color: var(--primary-dark);
+            background: var(--primary-light);
+            border: none;
+            height: 40px;
+            padding: 0 10px;
+            border-radius: 20px;
+            width: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            user-select: none;
+        }
+
+
+        .quiz_box header .timer .time_left_txt{
+            font-weight: 500;
+            font-size: 16px;
+        }
+
+
+        .quiz_box header .timer .timer_sec{
+            font-size: 18px;
+            font-weight: 600;
+            height: 30px;
+            width: 45px;
+            color: var(--box-bg);
+            border-radius: 15px;
+            line-height: 30px;
+            text-align: center;
+            background: var(--primary-color);
+            user-select: none;
+        }
+
+
+        .quiz_box header .time_line{
+            position: absolute;
+            bottom: 0px;
+            left: 0px;
+            height: 4px;
+            background: var(--primary-color);
+        }
+
+
+        section{
+            padding: 25px 30px 20px 30px;
+            background: var(--box-bg);
+        }
+
+
+        section .que_text{
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+
+        section .option_list{
+            padding: 15px 0px;
+            display: block;
+        }
+
+
+        /* --- Options Styling --- */
+        section .option_list .option{
+            background: #F8F8FF; /* Light option background */
+            border: 1px solid #E6E6FA;
+            border-radius: 8px;
+            padding: 12px 18px;
+            font-size: 17px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            line-height: 1.5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+
+        section .option_list .option:last-child{
+            margin-bottom: 0px;
+        }
+
+
+        section .option_list .option:hover{
+            color: var(--primary-dark);
+            background: #EDEAFD;
+            border: 1px solid var(--primary-light);
+            transform: translateY(-1px);
+        }
+
+
+        /* Correct/Incorrect feedback colors (using complementary palette) */
+        section .option_list .option.correct{
+            color: #1A723C; /* Dark Green */
+            background: #D8F2D8; /* Light Green */
+            border: 1px solid #B0E5B0;
+            font-weight: 600;
+        }
+
+
+        section .option_list .option.incorrect{
+            color: #9E3547; /* Dark Red */
+            background: #F8D8D8; /* Light Red */
+            border: 1px solid #E5B0B0;
+            font-weight: 600;
+        }
+
+
+        section .option_list .option.disabled{
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+
+        /* Feedback Icons */
+        section .option_list .option .icon{
+            height: 28px;
+            width: 28px;
+            border-radius: 50%;
+            text-align: center;
+            font-size: 15px;
+            pointer-events: none;
+            line-height: 26px;
+            transition: all 0.3s ease;
+        }
+        .option_list .option .icon.tick{
+            color: #1A723C;
+            border: 2px solid #1A723C;
+            background: #D8F2D8;
+        }
+
+
+        .option_list .option .icon.cross{
+            color: #9E3547;
+            background: #F8D8D8;
+            border: 2px solid #9E3547;
+        }
+
+
+        /* --- Footer and Next Button --- */
+        footer{
+            height: 60px;
+            padding: 0 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid #E0E0E0;
+            border-radius: 0 0 12px 12px;
+        }
+
+
+        footer .total_que span{
+            display: flex;
+            user-select: none;
+            font-size: 16px;
+        }
+
+
+        footer .total_que span p{
+            font-weight: 600;
+            color: var(--primary-color);
+            padding: 0 5px;
+        }
+
+
+        footer .total_que span p:first-child{
+            padding-left: 0px;
+        }
+
+
+        footer button{
+            height: 40px;
+            padding: 0 15px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            color: var(--box-bg);
+            border-radius: 20px;
+            background: var(--primary-color);
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.9);
+            transition: all 0.3s ease;
+            line-height: 10px;
+        }
+
+
+        footer button:hover{
+            background: var(--primary-dark);
+        }
+
+
+        footer button.show{
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
+
+
+        /* --- Result Box --- */
+        .result_box{
+            background: var(--box-bg);
+            border-radius: 12px;
+            display: flex;
+            padding: 30px 40px;
+            width: 400px;
+            align-items: center;
+            flex-direction: column;
+            justify-content: center;
+            transform: translate(-50%, -50%) scale(0.85);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+
+        .result_box .icon{
+            font-size: 80px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+
+        .result_box .complete_text{
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+
+        .result_box .score_text span{
+            display: flex;
+            margin: 15px 0;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+
+        .result_box .score_text span p{
+            padding: 0 4px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+
+        .result_box .buttons{
+            display: flex;
+            margin: 25px 0 10px 0;
+        }
+
+
+        .result_box .buttons button{
+            margin: 0 8px;
+            height: 45px;
+            padding: 0 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+
+        .buttons button.restart{
+            color: var(--box-bg);
+            background: var(--primary-color);
+            box-shadow: 0 3px 8px rgba(93, 63, 211, 0.3);
+        }
+
+
+        .buttons button.restart:hover{
+            background: var(--primary-dark);
+        }
+
+
+        .buttons button.quit{
+            color: var(--primary-color);
+            background: transparent;
+            border: 2px solid var(--primary-light);
+        }
+
+
+        .buttons button.quit:hover{
+            color: var(--box-bg);
+            background: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+
+
+    <!-- start Quiz button -->
+    <div class="start_btn"><button>Start Quiz</button></div>
+
+
+    <!-- Info Box -->
+    <div class="info_box">
+        <div class="info-title"><span>Rules of this Quiz</span></div>
+        <div class="info-list">
+            <div class="info">1. You will have only <span>15 seconds</span> per each question.</div>
+            <div class="info">2. Once you select your answer, it can't be undone.</div>
+            <div class="info">3. You can't select any option once time goes off.</div>
+            <div class="info">4. You can't exit from the Quiz while you're playing.</div>
+            <div class="info">5. You'll get points on the basis of your correct answers.</div>
+        </div>
+        <div class="buttons">
+            <button class="quit">Exit Quiz</button>
+            <button class="restart">Continue</button>
+        </div>
+    </div>
+
+
+    <!-- Quiz Box -->
+    <div class="quiz_box">
+        <header>
+            <div class="title">General Knowledge Quiz</div>
+            <div class="timer">
+                <div class="time_left_txt">Time Left</div>
+                <div class="timer_sec">15</div>
+            </div>
+            <div class="time_line"></div>
+        </header>
+        <section>
+            <div class="que_text">
+                <!-- Question will be inserted here from JavaScript -->
+            </div>
+            <div class="option_list">
+                <!-- Options will be inserted here from JavaScript -->
+            </div>
+        </section>
+
+
+        <!-- footer of Quiz Box -->
+        <footer>
+            <div class="total_que">
+                <!-- Question Count Number will be inserted here from JavaScript -->
+            </div>
+            <button class="next_btn">Next Question</button>
+        </footer>
+    </div>
+
+
+    <!-- Result Box -->
+    <div class="result_box">
+        <div class="icon">
+            <i class="fas fa-crown"></i>
+        </div>
+        <div class="complete_text">You've completed the Quiz!</div>
+        <div class="score_text">
+            <!-- Score Result will be inserted here from JavaScript -->
+        </div>
+        <div class="buttons">
+            <button class="restart">Replay Quiz</button>
+            <button class="quit">Quit Quiz</button>
+        </div>
+    </div>
+
+
+    <script>
+        // --- UPDATED QUIZ QUESTIONS (General Knowledge) ---
+        let questions = [
+            {
+                numb: 1,
+                question: "What is the largest planet in our solar system?",
+                answer: "Jupiter",
+                options: [
+                    "Mars",
+                    "Saturn",
+                    "Jupiter",
+                    "Earth"
+                ]
+            },
+            {
+                numb: 2,
+                question: "Which element has the chemical symbol 'O'?",
+                answer: "Oxygen",
+                options: [
+                    "Gold",
+                    "Oxygen",
+                    "Oganesson",
+                    "Osmium"
+                ]
+            },
+            {
+                numb: 3,
+                question: "How many continents are there in the world?",
+                answer: "Seven",
+                options: [
+                    "Six",
+                    "Five",
+                    "Seven",
+                    "Four"
+                ]
+            },
+            {
+                numb: 4,
+                question: "Who painted the famous artwork 'Mona Lisa'?",
+                answer: "Leonardo da Vinci",
+                options: [
+                    "Vincent van Gogh",
+                    "Pablo Picasso",
+                    "Claude Monet",
+                    "Leonardo da Vinci"
+                ]
+            },
+            {
+                numb: 5,
+                question: "What is the capital city of Canada?",
+                answer: "Ottawa",
+                options: [
+                    "Toronto",
+                    "Vancouver",
+                    "Montreal",
+                    "Ottawa"
+                ]
+            },
+            {
+                numb: 6,
+                question: "What is the chemical symbol for gold?",
+                answer: "Au",
+                options: [
+                    "Ag",
+                    "Gd",
+                    "Au",
+                    "Go"
+                ]
+            },
+            {
+                numb: 7,
+                question: "Which ocean is the largest by area?",
+                answer: "Pacific Ocean",
+                options: [
+                    "Atlantic Ocean",
+                    "Indian Ocean",
+                    "Southern Ocean",
+                    "Pacific Ocean"
+                ]
+            },
+            {
+                numb: 8,
+                question: "Who wrote the play 'Romeo and Juliet'?",
+                answer: "William Shakespeare",
+                options: [
+                    "Charles Dickens",
+                    "Jane Austen",
+                    "William Shakespeare",
+                    "Mark Twain"
+                ]
+            },
+            {
+                numb: 9,
+                question: "What part of the plant conducts photosynthesis?",
+                answer: "Leaves",
+                options: [
+                    "Roots",
+                    "Stem",
+                    "Flowers",
+                    "Leaves"
+                ]
+            },
+            {
+                numb: 10,
+                question: "What is the longest river in the world?",
+                answer: "Nile River",
+                options: [
+                    "Amazon River",
+                    "Yangtze River",
+                    "Mississippi River",
+                    "Nile River"
+                ]
+            },
+            {
+                numb: 11,
+                question: "Which country is famous for the Eiffel Tower?",
+                answer: "France",
+                options: [
+                    "Italy",
+                    "Germany",
+                    "France",
+                    "Spain"
+                ]
+            },
+            {
+                numb: 12,
+                question: "In what year did the Titanic sink?",
+                answer: "1912",
+                options: [
+                    "1905",
+                    "1912",
+                    "1918",
+                    "1923"
+                ]
+            },
+            {
+                numb: 13,
+                question: "What is the hardest natural substance on Earth?",
+                answer: "Diamond",
+                options: [
+                    "Quartz",
+                    "Tungsten",
+                    "Diamond",
+                    "Sapphire"
+                ]
+            },
+            {
+                numb: 14,
+                question: "What is the capital city of Japan?",
+                answer: "Tokyo",
+                options: [
+                    "Kyoto",
+                    "Osaka",
+                    "Nagoya",
+                    "Tokyo"
+                ]
+            },
+            {
+                numb: 15,
+                question: "What is the name of the mythological creature that is half-man and half-horse?",
+                answer: "Centaur",
+                options: [
+                    "Minotaur",
+                    "Sphinx",
+                    "Griffin",
+                    "Centaur"
+                ]
+            },
+            {
+                numb: 16,
+                question: "What does HTML stand for?",
+                answer: "Hyper Text Markup Language",
+                options: [
+                    "Hyper Text Preprocessor",
+                    "Hyper Text Markup Language",
+                    "Hyper Text Multiple Language",
+                    "Hyper Tool Multi Language"
+                ]
+            },
+            {
+                numb: 17,
+                question: "What does CSS stand for?",
+                answer: "Cascading Style Sheet",
+                options: [
+                    "Common Style Sheet",
+                    "Colorful Style Sheet",
+                    "Computer Style Sheet",
+                    "Cascading Style Sheet"
+                ]
+            },
+            {
+                numb: 18,
+                question: "What does PHP stand for?",
+                answer: "Hypertext Preprocessor",
+                options: [
+                    "Hypertext Preprocessor",
+                    "Hypertext Programming",
+                    "Hypertext Preprogramming",
+                    "Hometext Preprocessor"
+                ]
+            },
+            {
+                numb: 19,
+                question: "What does SQL stand for?",
+                answer: "Structured Query Language",
+                options: [
+                    "Stylish Question Language",
+                    "Stylesheet Query Language",
+                    "Statement Question Language",
+                    "Structured Query Language"
+                ]
+            },
+            {
+                numb: 20,
+                question: "What does XML stand for?",
+                answer: "eXtensible Markup Language",
+                options: [
+                    "eXtensible Markup Language",
+                    "eXecutable Multiple Language",
+                    "eXTra Multi-Program Language",
+                    "eXamine Multiple Language"
+                ]
+            },
+        ];
+
+
+        
+        // --- QUIZ LOGIC (Unchanged, reused for functionality) ---
+        const start_btn = document.querySelector(".start_btn button");
+        const info_box = document.querySelector(".info_box");
+        const exit_btn = info_box.querySelector(".buttons .quit");
+        const continue_btn = info_box.querySelector(".buttons .restart");
+        const quiz_box = document.querySelector(".quiz_box");
+        const result_box = document.querySelector(".result_box");
+        const option_list = document.querySelector(".option_list");
+        const time_line = document.querySelector("header .time_line");
+        const timeText = document.querySelector(".timer .time_left_txt");
+        const timeCount = document.querySelector(".timer .timer_sec");
+        const next_btn = document.querySelector("footer .next_btn");
+
+
+        let timeValue = 15;
+        let que_count = 0;
+        let que_numb = 1;
+        let userScore = 0;
+        let counter;
+        let counterLine;
+        let widthValue = 0;
+
+
+        // if startQuiz button clicked
+        start_btn.onclick = ()=>{
+            info_box.classList.add("activeInfo");
+        }
+
+
+        // if exitQuiz button clicked
+        exit_btn.onclick = ()=>{
+            info_box.classList.remove("activeInfo");
+        }
+
+
+        // if continueQuiz button clicked
+        continue_btn.onclick = ()=>{
+            info_box.classList.remove("activeInfo");
+            quiz_box.classList.add("activeQuiz");
+            showQuetions(0);
+            queCounter(1);
+            startTimer(timeValue);
+            startTimerLine(0);
+        }
+
+
+        // if Next Question button clicked
+        next_btn.onclick = ()=>{
+            if(que_count < questions.length - 1){
+                que_count++;
+                que_numb++;
+                showQuetions(que_count);
+                queCounter(que_numb);
+                clearInterval(counter);
+                clearInterval(counterLine);
+                startTimer(timeValue);
+                startTimerLine(0);
+                timeText.textContent = "Time Left";
+                next_btn.classList.remove("show");
+            }else{
+                clearInterval(counter);
+                clearInterval(counterLine);
+                showResult();
+            }
+        }
+
+
+        // getting questions and options from array
+        function showQuetions(index){
+            const que_text = document.querySelector(".que_text");
+
+
+            //creating a new span tag and inserting the question number and question
+            let que_tag = '<span>'+ questions[index].numb + ". " + questions[index].question +'</span>';
+            let option_tag = '<div class="option"><span>'+ questions[index].options[0] +'</span><div class="icon"></div></div>'
+                            + '<div class="option"><span>'+ questions[index].options[1] +'</span><div class="icon"></div></div>'
+                            + '<div class="option"><span>'+ questions[index].options[2] +'</span><div class="icon"></div></div>'
+                            + '<div class="option"><span>'+ questions[index].options[3] +'</span><div class="icon"></div></div>';
+            que_text.innerHTML = que_tag;
+            option_list.innerHTML = option_tag;
+
+
+            const option = option_list.querySelectorAll(".option");
+
+
+            // set onclick attribute to all available options
+            for(let i=0; i < option.length; i++){
+                option[i].setAttribute("onclick", "optionSelected(this)");
+            }
+        }
+
+
+        // creating the new div tags which for icons
+        let tickIconTag = '<div class="icon tick"><i class="fas fa-check"></i></div>';
+        let crossIconTag = '<div class="icon cross"><i class="fas fa-times"></i></div>';
+
+
+        //if user clicked on option
+        function optionSelected(answer){
+            clearInterval(counter);
+            clearInterval(counterLine);
+            let userAns = answer.textContent;
+            let correcAns = questions[que_count].answer;
+            const allOptions = option_list.children.length;
+
+
+            if(userAns == correcAns){
+                userScore += 1;
+                answer.classList.add("correct");
+                answer.insertAdjacentHTML("beforeend", tickIconTag);
+            }else{
+                answer.classList.add("incorrect");
+                answer.insertAdjacentHTML("beforeend", crossIconTag);
+
+
+                // Automatically highlight the correct answer
+                for(let i=0; i < allOptions; i++){
+                    if(option_list.children[i].textContent == correcAns){
+                        option_list.children[i].classList.add("correct");
+                        option_list.children[i].insertAdjacentHTML("beforeend", tickIconTag);
+                    }
+                }
+            }
+            for(let i=0; i < allOptions; i++){
+                option_list.children[i].classList.add("disabled");
+            }
+            next_btn.classList.add("show");
+        }
+
+
+        function showResult(){
+            info_box.classList.remove("activeInfo");
+            quiz_box.classList.remove("activeQuiz");
+            result_box.classList.add("activeResult");
+            const scoreText = result_box.querySelector(".score_text");
+
+
+            // --- Updated score logic for 15 questions ---
+            if (userScore >= 12){ // 12/15 or more (80%+)
+                let scoreTag = '<span>and congrats! 🎉, You got <p>'+ userScore +'</p> out of <p>'+ questions.length +'</p></span>';
+                scoreText.innerHTML = scoreTag;
+            }
+            else if(userScore >= 8){ // 8/15 to 11/15 (50%+)
+                let scoreTag = '<span>and nice 😎, You got <p>'+ userScore +'</p> out of <p>'+ questions.length +'</p></span>';
+                scoreText.innerHTML = scoreTag;
+            }
+            else{ // 7/15 or less
+                let scoreTag = '<span>and sorry 😔, You got only <p>'+ userScore +'</p> out of <p>'+ questions.length +'</p></span>';
+                scoreText.innerHTML = scoreTag;
+            }
+        }
+
+
+        // Restart Quiz Button
+        const restart_quiz = result_box.querySelector(".buttons .restart");
+        restart_quiz.onclick = ()=>{
+            quiz_box.classList.add("activeQuiz");
+            result_box.classList.remove("activeResult");
+            timeValue = 15;
+            que_count = 0;
+            que_numb = 1;
+            userScore = 0;
+            widthValue = 0;
+            showQuetions(que_count);
+            queCounter(que_numb);
+            clearInterval(counter);
+            clearInterval(counterLine);
+            startTimer(timeValue);
+            startTimerLine(widthValue);
+            timeText.textContent = "Time Left";
+            next_btn.classList.remove("show");
+        }
+
+
+        // Quit Quiz Button (in result box and info box)
+        const quit_quiz = document.querySelectorAll(".quit");
+        quit_quiz.forEach(btn => {
+            btn.onclick = () => {
+                window.location.reload();
+            }
+        });
+
+
+
+        function startTimer(time){
+            counter = setInterval(timer, 1000);
+            function timer(){
+                timeCount.textContent = time;
+                time--;
+                if(time < 9){
+                    let addZero = timeCount.textContent;
+                    timeCount.textContent = "0" + addZero;
+                }
+                if(time < 0){
+                    clearInterval(counter);
+                    timeText.textContent = "Time Off";
+                    const allOptions = option_list.children.length;
+                    let correcAns = questions[que_count].answer;
+                    for(let i=0; i < allOptions; i++){
+                        if(option_list.children[i].textContent == correcAns){
+                            option_list.children[i].setAttribute("class", "option correct");
+                            option_list.children[i].insertAdjacentHTML("beforeend", tickIconTag);
+                        }
+                        option_list.children[i].classList.add("disabled");
+                    }
+                    next_btn.classList.add("show");
+                }
+            }
+        }
+
+
+        function startTimerLine(time){
+            counterLine = setInterval(timer, 29);
+            function timer(){
+                time += 1.87;
+                time_line.style.width = time + "px";
+                if(time > 549){
+                    clearInterval(counterLine);
+                }
+            }
+        }
+
+
+        function queCounter(index){
+            //creating a new span tag and passing the question number and total question
+            let totalQueCounTag = '<span><p>'+ index +'</p> of <p>'+ questions.length +'</p> Questions</span>';
+            const bottom_ques_counter = document.querySelector("footer .total_que");
+            bottom_ques_counter.innerHTML = totalQueCounTag;
+        }
+    </script>
+
+
+</body>
+</html>
